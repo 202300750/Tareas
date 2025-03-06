@@ -1,0 +1,42 @@
+CREATE DATABASE IF NOT EXISTS db_demo;
+USE db_demo;
+
+CREATE TABLE db_demo.transacciones (
+    numTransaccion INT AUTO_INCREMENT PRIMARY KEY,
+    numMes INT, 
+    Monto DECIMAL(10,2),
+    SaldoAcumulado DECIMAL(10,2)
+);
+
+DROP PROCEDURE IF EXISTS db_demo.sp_simulador_ahorro;
+
+DELIMITER //
+
+CREATE PROCEDURE db_demo.sp_simulador_ahorro(
+    IN p_monto DECIMAL(10,2),
+    IN p_meses INT
+)
+BEGIN
+    -- Declaración de variables
+    DECLARE v_mes INT DEFAULT 1;
+    DECLARE v_saldo_acumulado DECIMAL(10,2) DEFAULT 0;
+
+    TRUNCATE TABLE db_demo.transacciones;
+
+    WHILE v_mes <= p_meses DO  
+        SET v_saldo_acumulado = v_saldo_acumulado + p_monto;       
+
+        -- Insertar el registro en la tabla
+        INSERT INTO db_demo.transacciones (numMes, Monto, SaldoAcumulado)
+        VALUES (v_mes, p_monto, v_saldo_acumulado);
+
+        -- Incrementar el mes
+        SET v_mes = v_mes + 1; 
+    END WHILE; 
+END //
+
+DELIMITER ;
+
+CALL db_demo.sp_simulador_ahorro(350, 5);
+
+SELECT * FROM db_demo.transacciones;
